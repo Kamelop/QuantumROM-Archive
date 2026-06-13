@@ -1,3 +1,11 @@
+## Note from Kamelop
+If this repo violates any rules i'm not responsible for them, it is not my creation.
+
+This is just an archive incase it is discontinued.
+
+## Supported Devices
+Samsung Galaxy A13 - A135F - A137F
+
 ![QuantumROM Logo](QuantumROM/logo/QuantumROM.jpg)
 
 ## 📌 Overview.
