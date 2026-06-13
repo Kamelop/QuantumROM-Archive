@@ -16,6 +16,7 @@ This is just an archive incase it is discontinued.
 - Samsung Galaxy A51 - A515F 
 - Samsung Galaxy A52 - A528B 
 - Samsung Galaxy A73 - A736B
+- Samsung Galaxy F22 - E225F 
 ![QuantumROM Logo](QuantumROM/logo/QuantumROM.jpg)
 
 ## 📌 Overview.
