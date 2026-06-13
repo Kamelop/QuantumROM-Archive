@@ -4,8 +4,18 @@ If this repo violates any rules i'm not responsible for them, it is not my creat
 This is just an archive incase it is discontinued.
 
 ## Supported Devices
+Samsung Galaxy A12 - A127F
 Samsung Galaxy A13 - A135F - A137F
-
+Samsung Galaxy A15 - A155F - A156E
+Samsung Galaxy A22 - A225F - A225M - A226B
+Samsung Galaxy A26 - A266B
+Samsung Galaxy A32 - A325F
+Samsung Galaxy A33 - A336E
+Samsung Galaxy A34 - A346E
+Samsung Galaxy A36 - A366B 
+Samsung Galaxy A51 - A515F 
+Samsung Galaxy A52 - A528B 
+Samsung Galaxy A73 - A736B
 ![QuantumROM Logo](QuantumROM/logo/QuantumROM.jpg)
 
 ## 📌 Overview.
