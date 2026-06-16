@@ -184,6 +184,10 @@ In your forked repository, go to:
 - iBotPeaches
 - https://github.com/ibotpeaches/apktool
 
+#### 11. A137F Port
+- AlfCraft07
+- https://github.com/AlfCraft07/QuantumROM/tree/fifteen
+
 ### Licensing.
 This project is licensed under the **MIT License** - see the [LICENSE](LICENSE) file for details.
 - **[android-tools](https://github.com/nmeum/android-tools)** - Licensed under Apache License 2.0
