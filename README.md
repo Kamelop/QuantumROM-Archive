@@ -151,6 +151,10 @@ In your forked repository, go to:
 - Sushrut1101
 - https://github.com/Sushrut1101/GoFile-Upload
 
+#### 9. A137F Port
+- AlfCraft07
+- https://github.com/AlfCraft07/QuantumROM
+
 ### Licensing.
 This project is licensed under the **MIT License** - see the [LICENSE](LICENSE) file for details.
 - **[android-tools](https://github.com/nmeum/android-tools)** - Licensed under Apache License 2.0
