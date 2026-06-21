@@ -8,6 +8,8 @@ NC="\e[0m"
 REAL_USER=${SUDO_USER:-$USER}
 
 # Binary
+chmod +x $(pwd)/bin/f2fs-tools/mkfs.f2fs
+chmod +x $(pwd)/bin/f2fs-tools/sload.f2fs
 chmod +x $(pwd)/bin/lp/lpunpack
 chmod +x $(pwd)/bin/ext4/make_ext4fs
 chmod +x $(pwd)/bin/erofs-utils/extract.erofs
@@ -239,7 +241,7 @@ PREPARE_PARTITIONS() {
         KEEP[$i]=$(echo -e "${KEEP[$i]}" | xargs)
     done
 
-    echo -e "${YELLOW}Preparing partitinos.${NC} $STOCK_DEVICE"
+    echo -e "${YELLOW}Preparing partitions.${NC} $STOCK_DEVICE"
 
     find "$EXTRACTED_FIRM_DIR" -mindepth 1 -maxdepth 1 -type d -exec rm -rf {} +
 
@@ -266,6 +268,7 @@ PREPARE_PARTITIONS() {
 
 EXTRACT_FIRMWARE_IMG() {
     echo -e ""
+
 	if [ "$#" -ne 1 ]; then
         echo -e "Usage: ${FUNCNAME[0]} <FIRMWARE_DIRECTORY>"
         return 1
@@ -274,7 +277,9 @@ EXTRACT_FIRMWARE_IMG() {
 	local FIRM_DIR="$1"
 
     PREPARE_PARTITIONS "$FIRM_DIR"
-	echo -e "${YELLOW}Extracting imges from:${NC} $FIRM_DIR"
+
+	echo -e "${YELLOW}Extracting images from:${NC} $FIRM_DIR"
+
     for imgfile in "$FIRM_DIR"/*.img; do
         [ -e "$imgfile" ] || continue
 
@@ -288,23 +293,29 @@ EXTRACT_FIRMWARE_IMG() {
 
         partition="$(basename "${imgfile%.img}")"
         fstype=$(blkid -o value -s TYPE "$imgfile")
+        [ -z "$fstype" ] && fstype=$(file -b "$imgfile")
 
         case "$fstype" in
             ext4)
                 IMG_SIZE=$(stat -c%s -- "$imgfile")
 				echo -e "- $partition.img Detected $fstype. Size: $IMG_SIZE bytes. Extracting..."
-				sudo rm -rf "$FIRM_DIR/$partition"
-                sudo python3 $(pwd)/bin/py_scripts/imgextractor.py "$imgfile" "$FIRM_DIR"
+                sudo rm -rf "$FIRM_DIR/$partition"
+                sudo python3 "$(pwd)/bin/py_scripts/imgextractor.py" "$imgfile" "$FIRM_DIR"
                 ;;
             erofs)
                 IMG_SIZE=$(stat -c%s -- "$imgfile")
 				echo -e "- $partition.img Detected $fstype. Size: $IMG_SIZE bytes. Extracting..."
-				sudo rm -rf "$FIRM_DIR/$partition"
-                sudo $(pwd)/bin/erofs-utils/extract.erofs -i "$imgfile" -x -f -o "$FIRM_DIR" >/dev/null 2>&1
+                sudo rm -rf "$FIRM_DIR/$partition"
+                sudo "$(pwd)/bin/erofs-utils/extract.erofs" -i "$imgfile" -x -f -o "$FIRM_DIR" >/dev/null 2>&1
+                ;;
+            f2fs)
+                echo "- $partition.img Detected $fstype. Size: $IMG_SIZE bytes. Extracting..."
+                sudo rm -rf "$FIRM_DIR/$partition"
+                bash "$(pwd)/scripts/extract_img.sh" "$imgfile" "$FIRM_DIR"
                 ;;
             *)
-                echo -e "- $imgfile unsupported filesystem type ($fstype), exiting"
-                exit 1
+                echo -e "- $partition.img unsupported filesystem type ($fstype), exiting"
+                continue
                 ;;
         esac
     done
@@ -313,7 +324,7 @@ EXTRACT_FIRMWARE_IMG() {
 
 	if ! ls "$FIRM_DIR"/system* >/dev/null 2>&1; then
         echo -e "Maybe your firmware is not downloaded, is corrupt, or contains an unsupported image."
-        exit 1
+        continue
     fi
 
     sudo chown -R "$REAL_USER:$REAL_USER" "$FIRM_DIR"
@@ -1671,6 +1682,31 @@ BUILD_IMG() {
             $(pwd)/bin/ext4/make_ext4fs -l "$(awk "BEGIN {printf \"%.0f\", $SIZE * 1.1}")" -J -b 4096 -S "$FILE_CONTEXTS" -C "$FS_CONFIG"  -a "$MOUNT_POINT" -L "$PARTITION" "$OUT_IMG" "$SRC_DIR"
 			# Resize img to reduce size.
 			resize2fs -M "$OUT_IMG"
+        elif [[ "$FILE_SYSTEM" == "f2fs" ]]; then
+            echo " "
+            echo -e "${YELLOW}Building $FILE_SYSTEM image:${NC} $OUT_IMG"
+            SIZE=$(((EXTRACTED_SIZE + 511) / 512 * 512))
+            EXTENDED_SIZE=$((SIZE + SIZE / 4))
+            dd if=/dev/zero of=$OUT_IMG bs=512 count=$((EXTENDED_SIZE / 512))
+            make_f2fs \
+            -f -q \
+            -g android \
+            -O extra_attr,inode_checksum,sb_checksum,compression \
+            -l "$MOUNT_POINT" \
+            "$OUT_IMG"
+            sload_f2fs \
+            -f "$SOURCE_DIR" \
+            -C "$FS_CONFIG" \
+            -s "$FILE_CONTEXTS" \
+            -t "$MOUNT_POINT" \
+            -P \
+            -c \
+            -L 2 \
+            -a lz4 \
+            "$OUT_IMG"
+            img2simg "$OUT_IMG" "${OUT_IMG}.sparse"
+            rm -rf "$OUT_IMG"
+            mv "${OUT_IMG}.sparse" "$OUT_IMG"
         else
             echo -e "Unknown filesystem: $FILE_SYSTEM, skipping $PARTITION"
             continue
