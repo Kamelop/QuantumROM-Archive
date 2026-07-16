@@ -6,23 +6,23 @@ on:
       STOCK_DEVICE:
         description: "STOCK_DEVICE_MODEL or None"
         required: true
-        default: "SM-A225F"
+        default: "SM-T505N"
       TARGET_DEVICE:
         description: "TARGET_DEVICE_MODEL."
         required: true
-        default: "SM-A346E"
+        default: "SM-P619"
       TARGET_DEVICE_CSC:
         description: "TARGET_DEVICE_CSC."
         required: true
-        default: "BKD"
+        default: "DBT"
       TARGET_DEVICE_IMEI:
         description: "TARGET_DEVICE_IMEI."
         required: true
-        default: "353435774197736"
+        default: "RX2T801M6DJ"
       OUTPUT_FILESYSTEM:
         description: "OUTPUT_FILESYSTEM. e.g erofs / ext4"
         required: true
-        default: "erofs"
+        default: "ext4"
       COMPRESS_IMG_TO_XZ:
         description: "Compress IMG to XZ (True/False)"
         required: true
